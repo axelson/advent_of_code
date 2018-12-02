@@ -13,6 +13,6 @@ defmodule Day2 do
 
   """
   def hello do
-    :world
+    Advent.input("short.txt")
   end
 end

@@ -3,16 +3,8 @@ defmodule Advent do
   Documentation for Advent.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Advent.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def input(filename) do
+    {:ok, input} = File.read(filename)
+    input
   end
 end
