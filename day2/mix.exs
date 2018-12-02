@@ -21,7 +21,8 @@ defmodule Day2.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:advent, path: "../advent"}
+      {:advent, path: "../advent"},
+      {:exsync, git: "git@github.com:axelson/exsync.git"}
     ]
   end
 end
