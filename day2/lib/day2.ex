@@ -20,6 +20,52 @@ defmodule Day2 do
     |> checksum()
   end
 
+  def part2 do
+    ids =
+      Advent.input("day2_input.txt")
+      |> extract_ids()
+
+    ids
+    |> Enum.map(&find_top_jaro_distance(&1, ids))
+    |> Enum.sort_by(fn {distance, _} -> distance end)
+    |> Enum.max_by(fn {distance, _} -> distance end)
+    |> extract_common_letters()
+  end
+
+  @doc """
+  Find the highest jaro distance of this id with all other ids
+
+  Note: this probably isn't the most performant method
+  """
+  def find_top_jaro_distance(id, other_ids) do
+    other_ids
+    |> Enum.reduce({0, {"", ""}}, fn
+      ^id, acc ->
+        acc
+
+      other_id, {highest_distance, closest_id} = acc ->
+        case String.jaro_distance(id, other_id) do
+          distance when distance > highest_distance -> {distance, {id, other_id}}
+          _ -> acc
+        end
+    end)
+  end
+
+  def extract_common_letters({_distance, {id1, id2}}) do
+    extract_common_letters(String.codepoints(id1), String.codepoints(id2))
+    |> Enum.join()
+  end
+
+  def extract_common_letters([], []), do: []
+
+  def extract_common_letters([char | rest_id1], [char | rest_id2]) do
+    [char | extract_common_letters(rest_id1, rest_id2)]
+  end
+
+  def extract_common_letters([_ | rest_id1], [_ | rest_id2]) do
+    extract_common_letters(rest_id1, rest_id2)
+  end
+
   def extract_ids(text), do: String.split(text, "\n", trim: true)
 
   def count_letters(box_id) do
