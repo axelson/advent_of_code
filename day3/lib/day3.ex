@@ -34,29 +34,24 @@ defmodule Day3 do
       |> MapSet.new()
 
     claims
-    |> Enum.map(&{&1.id, Claim.coords(&1)})
-    |> Enum.reduce(%Result{claimed: %{}, valid_ids: all_ids}, fn {id, coords}, result ->
-      {conflicting_ids, claimed} =
-        Enum.reduce(coords, {MapSet.new(), result.claimed}, fn coord, {conflicting_ids, claimed} ->
-          Map.get_and_update(claimed, coord, fn
-            nil ->
-              {conflicting_ids, [id]}
-
-            conflicts ->
-              new_conflicts = [id | conflicts]
-              conflicting_ids = MapSet.union(conflicting_ids, MapSet.new(new_conflicts))
-              {conflicting_ids, new_conflicts}
-          end)
+    |> Enum.flat_map(fn claim ->
+      Claim.coords(claim)
+      |> Enum.map(&{claim.id, &1})
+    end)
+    |> Enum.reduce(%Result{claimed: %{}, valid_ids: all_ids}, fn {id, coord}, result ->
+      {conflicts, claimed} =
+        Map.get_and_update(result.claimed, coord, fn
+          nil -> {[], [id]}
+          existing_ids -> {[id | existing_ids], [id | existing_ids]}
         end)
 
-      # now we have conflicting_ids and an updated claimed map
       valid_ids =
-        conflicting_ids
+        conflicts
         |> Enum.reduce(result.valid_ids, fn conflicting_id, valid_ids ->
           MapSet.delete(valid_ids, conflicting_id)
         end)
 
-      %{result | valid_ids: valid_ids, claimed: claimed}
+      %Result{result | claimed: claimed, valid_ids: valid_ids}
     end)
   end
 end
