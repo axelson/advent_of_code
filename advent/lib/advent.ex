@@ -7,4 +7,9 @@ defmodule Advent do
     {:ok, input} = File.read(filename)
     input
   end
+
+  def linewise_input(filename) do
+    input(filename)
+    |> String.split("\n", trim: true)
+  end
 end
