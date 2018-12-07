@@ -19,4 +19,8 @@ defmodule Day5Test do
     expected = ""
     assert Day5.reduce(input) == expected
   end
+
+  test "scrub scrubs a's" do
+    assert Day5.scrub('abcA', ?a) == 'bc'
+  end
 end

@@ -6,13 +6,36 @@ defmodule Day5 do
     file = "day5_input.txt"
 
     input(file)
+    |> :erlang.binary_to_list()
     |> reduce()
     |> String.length()
   end
 
+  def part2 do
+    input =
+      input("day5_input.txt")
+      |> :erlang.binary_to_list()
+
+    ?a..?z
+    |> Enum.map(fn char ->
+      scrub(input, char)
+      |> reduce()
+      |> String.length()
+    end)
+    |> Enum.min()
+  end
+
+  def scrub([], _char_to_scrub), do: []
+  def scrub([char | rest], char_to_scrub) do
+    cond do
+      char == char_to_scrub -> scrub(rest, char_to_scrub)
+      char + @case_difference == char_to_scrub -> scrub(rest, char_to_scrub)
+      true -> [char | scrub(rest, char_to_scrub)]
+    end
+  end
+
   def reduce(input) do
     input
-    |> :erlang.binary_to_list()
     |> do_reduce()
     |> IO.iodata_to_binary()
   end
