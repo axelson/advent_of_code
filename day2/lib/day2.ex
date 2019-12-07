@@ -10,10 +10,7 @@ defmodule Day2 do
       |> restore_gravity_assist_program()
       |> Prog.execute_prog()
 
-    IO.inspect(prog, label: "prog")
-
     Prog.to_intcodes(prog)
-    |> IO.inspect(label: "intcodes")
     |> hd()
   end
 
