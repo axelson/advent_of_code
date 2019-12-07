@@ -12,4 +12,10 @@ defmodule Advent do
     input(filename)
     |> String.split("\n", trim: true)
   end
+
+  def comma_input(filename) do
+    input(filename)
+    |> String.trim()
+    |> String.split(",")
+  end
 end

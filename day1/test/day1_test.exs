@@ -1,5 +1,5 @@
 defmodule Day1Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Day1
 
   describe "required_fuel/1" do
