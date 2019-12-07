@@ -19,18 +19,18 @@ defmodule Prog do
 
     cur_code = get_pos(prog, cur_pointer)
 
-    execute_code(prog, cur_code)
+    execute_instruction(prog, cur_code)
     |> execute_prog()
   end
 
-  def execute_code(prog, code)
+  def execute_instruction(prog, code)
 
   # halt
-  def execute_code(prog, 99), do: %__MODULE__{prog | halted?: true}
+  def execute_instruction(prog, 99), do: %__MODULE__{prog | halted?: true}
 
   # add
-  def execute_code(prog, 1) do
-    {arg1, arg2, arg3} = get_arguments(prog, 3)
+  def execute_instruction(prog, 1) do
+    {arg1, arg2, arg3} = get_parameters(prog, 3)
 
     num1 = get_pos(prog, arg1)
     num2 = get_pos(prog, arg2)
@@ -44,8 +44,8 @@ defmodule Prog do
   end
 
   # mult
-  def execute_code(prog, 2) do
-    {arg1, arg2, arg3} = get_arguments(prog, 3)
+  def execute_instruction(prog, 2) do
+    {arg1, arg2, arg3} = get_parameters(prog, 3)
 
     num1 = get_pos(prog, arg1)
     num2 = get_pos(prog, arg2)
@@ -58,7 +58,7 @@ defmodule Prog do
     |> increment_pointer(4)
   end
 
-  def get_arguments(%__MODULE__{} = prog, 3) do
+  def get_parameters(%__MODULE__{} = prog, 3) do
     %__MODULE__{cur_pointer: cur_pointer} = prog
 
     {
@@ -68,14 +68,14 @@ defmodule Prog do
     }
   end
 
-  def get_pos(%__MODULE__{} = prog, index) do
+  def get_pos(%__MODULE__{} = prog, address) do
     %__MODULE__{codes: codes} = prog
-    Map.fetch!(codes, index)
+    Map.fetch!(codes, address)
   end
 
-  def store_pos(%__MODULE__{} = prog, index, value) do
+  def store_pos(%__MODULE__{} = prog, address, value) do
     %__MODULE__{codes: codes} = prog
-    codes = Map.put(codes, index, value)
+    codes = Map.put(codes, address, value)
     %__MODULE__{prog | codes: codes}
   end
 
@@ -87,12 +87,12 @@ defmodule Prog do
   def to_intcodes(%__MODULE__{} = prog) do
     %__MODULE__{codes: codes} = prog
 
-    indexes =
+    addresses =
       Map.keys(codes)
       |> Enum.sort()
 
-    Enum.reduce(indexes, [], fn index, acc ->
-      [Map.fetch!(codes, index) | acc]
+    Enum.reduce(addresses, [], fn address, acc ->
+      [Map.fetch!(codes, address) | acc]
     end)
     |> Enum.reverse()
   end
