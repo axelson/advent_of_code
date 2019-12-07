@@ -1,18 +1,32 @@
 defmodule Day1 do
   @moduledoc """
-  Documentation for Day1.
+  At the first Go / No Go poll, every Elf is Go until the Fuel Counter-Upper. They haven't determined the amount of fuel required yet.
+
+  Fuel required to launch a given module is based on its mass. Specifically, to find the fuel required for a module, take its mass, divide by three, round down, and subtract 2.
+
+  For example:
+
+  For a mass of 12, divide by 3 and round down to get 4, then subtract 2 to get 2.
+  For a mass of 14, dividing by 3 and rounding down still yields 4, so the fuel required is also 2.
+  For a mass of 1969, the fuel required is 654.
+  For a mass of 100756, the fuel required is 33583.
+
+  The Fuel Counter-Upper needs to know the total fuel requirement. To find it, individually calculate the fuel needed for the mass of each module (your puzzle input), then add together all the fuel values.
+
+  What is the sum of the fuel requirements for all of the modules on your spacecraft?
   """
 
-  @doc """
-  Hello world.
+  # @file_path Path.join(__DIR__, "short")
+  @file_path Path.join(__DIR__, "input")
 
-  ## Examples
+  def part1 do
+    Advent.linewise_input(@file_path)
+    |> Enum.map(&String.to_integer/1)
+    |> Enum.map(&required_fuel/1)
+    |> Enum.sum()
+  end
 
-      iex> Day1.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def required_fuel(mass) when is_number(mass) do
+    floor(mass / 3) - 2
   end
 end

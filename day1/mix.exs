@@ -22,7 +22,7 @@ defmodule Day1.MixProject do
   defp deps do
     [
       {:advent, path: "../advent"},
-      {:exsync, path: "~/dev/forks/exsync"}
+      {:exsync, path: "~/dev/forks/exsync", only: :dev}
     ]
   end
 end
