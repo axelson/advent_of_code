@@ -1,18 +1,30 @@
 defmodule Day3 do
-  @moduledoc """
-  Documentation for Day3.
-  """
+  # @file_path Path.join(__DIR__, "short")
+  @file_path Path.join(__DIR__, "input")
 
-  @doc """
-  Hello world.
+  def part1 do
+    Advent.input(@file_path)
+    |> distance()
+  end
 
-  ## Examples
+  def distance(input) do
+    [wire1_commands, wire2_commands] =
+      String.split(input, "\n", trim: true)
+      |> Enum.map(&String.split(&1, ","))
 
-      iex> Day3.hello()
-      :world
+    board =
+      Board.new()
+      |> Board.add_wire(:a, wire1_commands)
+      |> Board.add_wire(:b, wire2_commands)
 
-  """
-  def hello do
-    :world
+    manhattan_distance(board)
+  end
+
+  def manhattan_distance(board) do
+    %Board{intersections: intersections} = board
+
+    intersections
+    |> Enum.map(fn {x, y} -> abs(x) + abs(y) end)
+    |> Enum.min()
   end
 end
