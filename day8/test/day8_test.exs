@@ -17,23 +17,183 @@ defmodule Day8Test do
     assert Day8.part1() == 2064
   end
 
-  # describe "part2_distance/2" do
-  #   import Day8, only: [part2_distance: 1]
+  describe "message/3" do
+    import Day8, only: [message: 3]
 
-  #   test "sample values" do
-  #     assert part2_distance("""
-  #            R75,D30,R83,U83,L12,D49,R71,U7,L72
-  #            U62,R66,U55,R34,D71,R55,D58,R83
-  #            """) == 610
+    test "sample values" do
+      assert message("0222112222120000", 2, 2) == [["\e[40m \e[0m", " ", " ", "\e[40m \e[0m"]]
+    end
+  end
 
-  #     assert part2_distance("""
-  #            R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
-  #            U98,R91,D20,R16,D67,R40,U7,R15,U6,R7
-  #            """) == 410
-  #   end
-  # end
-
-  # test "part 2 answer" do
-  #   assert Day8.part2() == 28580
-  # end
+  test "part 2 answer" do
+    assert Day8.part2() == [
+             [
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m"
+             ],
+             "\n",
+             [
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m"
+             ],
+             "\n",
+             [
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m"
+             ],
+             "\n",
+             [
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               " ",
+               " ",
+               "\e[40m \e[0m"
+             ],
+             "\n",
+             [
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m"
+             ],
+             "\n",
+             [
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               " ",
+               " ",
+               " ",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m",
+               "\e[40m \e[0m",
+               " ",
+               "\e[40m \e[0m"
+             ]
+           ]
+  end
 end

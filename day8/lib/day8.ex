@@ -7,6 +7,42 @@ defmodule Day8 do
     |> corruption_check(width, height)
   end
 
+  def part2 do
+    Advent.input(@file_path)
+    |> String.trim()
+    |> message(25, 6)
+  end
+
+  def message(input, width, height) do
+    image = parse_lines(input, width, height)
+
+    message =
+      Enum.reduce(image, %{}, fn layer, acc ->
+        layer
+        |> Enum.with_index()
+        |> Enum.reduce(acc, fn {row, row_num}, acc ->
+          row
+          |> Enum.with_index()
+          |> Enum.reduce(acc, fn {col, col_num}, acc ->
+            Map.update(acc, {row_num, col_num}, col, fn
+              2 -> col
+              current_value -> current_value
+            end)
+          end)
+        end)
+      end)
+
+    for row <- 0..(height - 1), col <- 0..(width - 1) do
+      message[{row, col}]
+      |> to_printable()
+    end
+    |> Enum.chunk_every(25)
+    |> Enum.intersperse("\n")
+  end
+
+  def to_printable(0), do: IO.ANSI.black_background() <> " " <> IO.ANSI.reset()
+  def to_printable(1), do: " "
+
   def corruption_check(input, width, height) do
     image = parse_lines(input, width, height)
 
