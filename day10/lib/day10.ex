@@ -1,18 +1,121 @@
 defmodule Day10 do
-  @moduledoc """
-  Documentation for Day10.
-  """
+  @file_path Path.join(__DIR__, "input")
 
-  @doc """
-  Hello world.
+  def part1 do
+    {_pos, num} =
+      Advent.input(@file_path)
+      |> best()
 
-  ## Examples
+    num
+  end
 
-      iex> Day10.hello()
-      :world
+  def best(input) do
+    counts = asteroid_counts(input)
 
-  """
-  def hello do
-    :world
+    Enum.max_by(counts, fn {_, count} -> count end)
+  end
+
+  def asteroid_counts(input) do
+    map = build_map(input)
+    lines = String.split(input, "\n", trim: true)
+    width = String.length(hd(lines))
+    height = length(lines)
+
+    {x_range, y_range} = {0..(width - 1), 0..(height - 1)}
+
+    for x <- x_range, y <- y_range, Map.get(map, {x, y}) == :asteroid, into: %{} do
+      length =
+        gen_angles({x, y}, width, height)
+        |> Enum.flat_map(&check_angle({x, y}, &1, map, width, height))
+        |> length()
+
+      {{x, y}, length}
+    end
+  end
+
+  def check_angle({x, y}, {dx, dy}, map, width, height)
+      when x < width and x >= 0 and y < width and y >= 0 do
+    pos1 = {x + dx, y + dy}
+
+    if Map.get(map, pos1) == :asteroid do
+      [pos1]
+    else
+      check_angle(pos1, {dx, dy}, map, width, height)
+    end
+  end
+
+  def check_angle(_, _, _, _, _), do: []
+
+  def gen_angles({pos_x, pos_y}, width, height) do
+    for x <- 0..(width - 1), y <- 0..(height - 1), {x, y} != {pos_x, pos_y} do
+      reduce({x - pos_x, y - pos_y})
+    end
+    |> Enum.uniq()
+  end
+
+  def reduce({0, y}), do: {0, div(y, abs(y))}
+  def reduce({x, 0}), do: {div(x, abs(x)), 0}
+
+  def reduce({x, y}) do
+    gcf = gcf(x, y)
+    {div(x, gcf), div(y, gcf)}
+  end
+
+  def gcf(num1, num2) do
+    gcf(factors(abs(num1)), factors(abs(num2)), 1)
+  end
+
+  def gcf(list1, list2, gcf) when list1 == [] or list2 == [], do: gcf
+  def gcf([hd | rest1], [hd | rest2], _), do: gcf(rest1, rest2, hd)
+
+  def gcf([hd1 | rest1] = list1, [hd2 | rest2] = list2, gcf) do
+    # discard the smaller number
+    if hd1 < hd2 do
+      gcf(rest1, list2, gcf)
+    else
+      gcf(list1, rest2, gcf)
+    end
+  end
+
+  def factors(num) do
+    {low, high} =
+      Enum.reduce_while(2..floor(num / 2), {[1], [num]}, fn
+        n, {low, [highest | _] = high} when n < highest ->
+          if rem(num, n) == 0 do
+            new_low = [n | low]
+            new_high = [div(num, n) | high]
+            {:cont, {new_low, new_high}}
+          else
+            {:cont, {low, high}}
+          end
+
+        _, acc ->
+          {:halt, acc}
+      end)
+
+    Enum.concat(Enum.reverse(low), high)
+  end
+
+  # Need to prune angles
+
+  # def check_angle({x, y}, {dx, dy}) do
+  #   # x + dx >= 0
+  # end
+
+  def build_map(input) do
+    input
+    |> String.split("\n", trim: true)
+    |> Enum.with_index()
+    |> Enum.reduce(%{}, fn {line, y}, acc ->
+      line
+      |> String.codepoints()
+      |> Enum.with_index()
+      |> Enum.reduce(acc, fn {char, x}, acc ->
+        case char do
+          "." -> Map.put(acc, {x, y}, :empty)
+          "#" -> Map.put(acc, {x, y}, :asteroid)
+        end
+      end)
+    end)
   end
 end
