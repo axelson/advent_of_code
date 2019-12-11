@@ -9,6 +9,33 @@ defmodule Day10 do
     num
   end
 
+  def part2({x, y} \\ {14, 17}) do
+    p2(Advent.input(@file_path), {x, y})
+  end
+
+  def p2(input, {x, y}) do
+    {map, width, height} = parse_input(input)
+
+    p3(map, width, height, {x, y})
+  end
+
+  def p3(map, width, height, {x, y}) do
+    angles = asteroid_angles(map, width, height, {x, y})
+
+    new_map =
+      angles
+      |> Enum.reduce(map, fn {{dx, dy}, _}, map ->
+        # Boom!
+        Map.put(map, {x + dx, y + dy}, :empty)
+      end)
+
+    if angles == [] do
+      angles
+    else
+      Enum.concat(angles, p3(new_map, width, height, {x, y}))
+    end
+  end
+
   def best(input) do
     counts = asteroid_counts(input)
 
@@ -32,6 +59,38 @@ defmodule Day10 do
       {{x, y}, length}
     end
   end
+
+  def parse_input(input) do
+    map = build_map(input)
+    lines = String.split(input, "\n", trim: true)
+    width = String.length(hd(lines))
+    height = length(lines)
+    {map, width, height}
+  end
+
+  def asteroid_angles(map, width, height, {x, y}) do
+    gen_angles({x, y}, width, height)
+    |> Enum.flat_map(&check_angle({x, y}, &1, map, width, height))
+    |> Enum.map(fn {a_x, a_y} ->
+      {dx, dy} = {a_x - x, a_y - y}
+
+      radians =
+        :math.atan2(-dy, dx)
+        |> sortable_radians()
+
+      {{dx, dy}, radians}
+    end)
+    |> Enum.sort_by(fn {{_dx, _dy}, radians} -> radians end)
+    |> Enum.reverse()
+  end
+
+  @pi_div2 :math.pi() / 2
+  # Sort based on unit circle starting at top and rotating clockwise
+  def sortable_radians(radians) when radians > @pi_div2 do
+    radians - 2 * :math.pi()
+  end
+
+  def sortable_radians(radians), do: radians
 
   def check_angle({x, y}, {dx, dy}, map, width, height)
       when x < width and x >= 0 and y < width and y >= 0 do
@@ -95,12 +154,6 @@ defmodule Day10 do
 
     Enum.concat(Enum.reverse(low), high)
   end
-
-  # Need to prune angles
-
-  # def check_angle({x, y}, {dx, dy}) do
-  #   # x + dx >= 0
-  # end
 
   def build_map(input) do
     input

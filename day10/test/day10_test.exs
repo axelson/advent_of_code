@@ -72,6 +72,42 @@ defmodule Day10Test do
   describe "asteroid_counts/1" do
     import Day10, only: [asteroid_counts: 1]
 
+    test "part2 sample" do
+      input = """
+      .#..##.###...#######
+      ##.############..##.
+      .#.######.########.#
+      .###.#######.####.#.
+      #####.##.#.##.###.##
+      ..#####..#.#########
+      ####################
+      #.####....###.#.#.##
+      ##.#################
+      #####.##.###..####..
+      ..######..##.#######
+      ####.##.####...##..#
+      .#####..#.######.###
+      ##...#.##########...
+      #.##########.#######
+      .####.#.###.###.#.##
+      ....##.##.###..#####
+      .#.#.###########.###
+      #.#.#.#####.####.###
+      ###.##.####.##.#..##
+      """
+
+      {x, y} = {11, 13}
+
+      the_asteroid =
+        Day10.p2(input, {x, y})
+        |> Enum.map(fn {{dx, dy}, angle} ->
+          {{x + dx, y + dy}, angle}
+        end)
+        |> Enum.at(199)
+
+      assert the_asteroid == {{8, 2}, -4.446136931233764}
+    end
+
     test "sample values" do
       counts =
         asteroid_counts("""
@@ -177,7 +213,19 @@ defmodule Day10Test do
     assert Day10.part1() == 260
   end
 
-  # test "part 2 answer" do
-  #   assert Day2.part2() == 4559
-  # end
+  test "part2 answer" do
+    {x, y} = {14, 17}
+
+    the_asteroid =
+      Day10.part2()
+      |> Enum.map(fn {{dx, dy}, angle} ->
+        {{x + dx, y + dy}, angle}
+      end)
+      |> Enum.at(199)
+
+    assert the_asteroid == {{6, 8}, -3.985746639702964}
+
+    {{ast_x, ast_y}, _angle} = the_asteroid
+    assert ast_x * 100 + ast_y == 608
+  end
 end
