@@ -1,18 +1,84 @@
 defmodule Day7 do
   @file_path Path.join(__DIR__, "input")
 
-  def part1() do
+  def part1 do
     prog = build_prog()
 
-    {_, output} =
-      permutations([0, 1, 2, 3, 4])
-      |> Enum.map(fn phase_inputs ->
-        output = execute_phases(prog, phase_inputs)
-        {phase_inputs, output}
-      end)
-      |> Enum.max_by(fn {_phase_inputs, output} -> output end)
+    permutations([0, 1, 2, 3, 4])
+    |> Enum.map(&execute_phases(&1, prog))
+    |> Enum.max()
+  end
 
-    output
+  def part2 do
+    prog = build_prog()
+
+    permutations([5, 6, 7, 8, 9])
+    |> Enum.map(&execute_phases(&1, prog))
+    |> Enum.max()
+  end
+
+  def execute_phases(phase_inputs, prog) do
+    [phase_a, phase_b, phase_c, phase_d, phase_e] = phase_inputs
+
+    me = self()
+
+    spawn_link(fn ->
+      Process.register(self(), :a)
+
+      prog
+      |> Prog.set_output(:b)
+      |> Prog.execute_prog()
+    end)
+
+    spawn_link(fn ->
+      Process.register(self(), :b)
+
+      prog
+      |> Prog.set_output(:c)
+      |> Prog.execute_prog()
+    end)
+
+    spawn_link(fn ->
+      Process.register(self(), :c)
+
+      prog
+      |> Prog.set_output(:d)
+      |> Prog.execute_prog()
+    end)
+
+    spawn_link(fn ->
+      Process.register(self(), :d)
+
+      prog
+      |> Prog.set_output(:e)
+      |> Prog.execute_prog()
+    end)
+
+    spawn_link(fn ->
+      Process.register(self(), :e)
+
+      prog =
+        prog
+        |> Prog.set_output(:a)
+        |> Prog.execute_prog()
+
+      send(me, prog.last_output)
+    end)
+
+    # Give processes time to startup and register
+    Process.sleep(10)
+
+    send(:a, phase_a)
+    send(:b, phase_b)
+    send(:c, phase_c)
+    send(:d, phase_d)
+    send(:e, phase_e)
+
+    send(:a, 0)
+
+    receive do
+      x -> x
+    end
   end
 
   def build_prog do
@@ -20,18 +86,6 @@ defmodule Day7 do
     |> Enum.map(&String.to_integer/1)
     |> Prog.intcodes_to_prog()
     |> Prog.set_quiet()
-  end
-
-  def execute_phases(prog, phase_inputs) do
-    Enum.reduce(phase_inputs, 0, fn phase_input, input ->
-      [output] =
-        prog
-        |> Prog.set_input([phase_input, input])
-        |> Prog.execute_prog()
-        |> Prog.read_output()
-
-      output
-    end)
   end
 
   def execute_intcodes(intcodes) do

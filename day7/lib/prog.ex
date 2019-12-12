@@ -1,6 +1,6 @@
 defmodule Prog do
   require Logger
-  defstruct [:codes, :cur_pointer, :halted?, :input, :output, :quiet?]
+  defstruct [:codes, :cur_pointer, :halted?, :last_output, :output_dest, :quiet?]
 
   def intcodes_to_prog(intcodes) when is_list(intcodes) do
     codes =
@@ -10,12 +10,20 @@ defmodule Prog do
         Map.put(acc, index, intcode)
       end)
 
-    %__MODULE__{codes: codes, cur_pointer: 0, halted?: false, input: [], output: []}
+    %__MODULE__{codes: codes, cur_pointer: 0, halted?: false, last_output: nil, output_dest: nil}
   end
 
   def execute_prog(%__MODULE__{halted?: true} = prog), do: prog
 
   def execute_prog(%__MODULE__{} = prog) do
+    prog
+    |> step()
+    |> execute_prog()
+  end
+
+  def step(%__MODULE__{halted?: true} = prog), do: prog
+
+  def step(%__MODULE__{} = prog) do
     %__MODULE__{cur_pointer: cur_pointer} = prog
 
     cur_code =
@@ -23,19 +31,13 @@ defmodule Prog do
       |> to_opcode()
 
     execute_instruction(prog, cur_code)
-    |> execute_prog()
   end
 
   def set_quiet(%__MODULE__{} = prog), do: %__MODULE__{prog | quiet?: true}
 
-  def set_input(%__MODULE__{} = prog, input) when is_list(input) do
-    %__MODULE__{prog | input: input}
+  def set_output(%__MODULE__{} = prog, output_dest) do
+    %__MODULE__{prog | output_dest: output_dest}
   end
-
-  @doc """
-  Return the output of the program in the order it was printed
-  """
-  def read_output(%__MODULE__{output: output}), do: Enum.reverse(output)
 
   def to_opcode(code) do
     Integer.digits(code)
@@ -85,7 +87,7 @@ defmodule Prog do
   def execute_instruction(prog, 3) do
     [{:position, dest}] = get_parameters(prog, 1)
 
-    {value, prog} = read_input(prog)
+    value = read_input(prog)
 
     log("INPUT: #{inspect(dest)} = #{value}")
 
@@ -231,31 +233,27 @@ defmodule Prog do
     |> Enum.reverse()
   end
 
-  defp read_input(prog) do
-    %__MODULE__{input: input} = prog
-
-    if input == [] do
-      val =
-        IO.gets("Enter input: ")
-        |> String.trim()
-        |> String.to_integer()
-
-      {val, prog}
-    else
-      [val | rest] = input
-      prog = %__MODULE__{prog | input: rest}
-      {val, prog}
+  defp read_input(_prog) do
+    receive do
+      x -> x
     end
   end
 
   defp write_output(prog, value) do
-    %__MODULE__{output: output, quiet?: quiet?} = prog
+    %__MODULE__{output_dest: output_dest, quiet?: quiet?} = prog
 
     if !quiet? do
       IO.puts("output: #{value}")
     end
 
-    %__MODULE__{prog | output: [value | output]}
+    # It's okay if the process we're sending to no longer exists
+    try do
+      send(output_dest, value)
+    rescue
+      _e -> :ok
+    end
+
+    %__MODULE__{prog | last_output: value}
   end
 
   # defp log(output), do: IO.puts(output)
