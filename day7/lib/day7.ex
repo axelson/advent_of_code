@@ -1,18 +1,17 @@
 defmodule Day7 do
-  @moduledoc """
-  Documentation for Day7.
-  """
+  @file_path Path.join(__DIR__, "input")
 
-  @doc """
-  Hello world.
+  def part1(input_pid \\ :stdio) do
+    Advent.comma_input(@file_path)
+    |> Enum.map(&String.to_integer/1)
+    |> Prog.intcodes_to_prog()
+    |> Prog.set_input(input_pid)
+    |> Prog.execute_prog()
+  end
 
-  ## Examples
-
-      iex> Day7.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def execute_intcodes(intcodes) do
+    Prog.intcodes_to_prog(intcodes)
+    |> Prog.execute_prog()
+    |> Prog.to_intcodes()
   end
 end
