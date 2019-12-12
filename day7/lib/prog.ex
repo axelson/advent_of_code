@@ -1,6 +1,6 @@
 defmodule Prog do
   require Logger
-  defstruct [:codes, :cur_pointer, :halted?, :input_pid]
+  defstruct [:codes, :cur_pointer, :halted?, :input, :output, :quiet?]
 
   def intcodes_to_prog(intcodes) when is_list(intcodes) do
     codes =
@@ -10,7 +10,7 @@ defmodule Prog do
         Map.put(acc, index, intcode)
       end)
 
-    %__MODULE__{codes: codes, cur_pointer: 0, halted?: false, input_pid: :stdio}
+    %__MODULE__{codes: codes, cur_pointer: 0, halted?: false, input: [], output: []}
   end
 
   def execute_prog(%__MODULE__{halted?: true} = prog), do: prog
@@ -26,9 +26,16 @@ defmodule Prog do
     |> execute_prog()
   end
 
-  def set_input(%__MODULE__{} = prog, pid) do
-    %__MODULE__{prog | input_pid: pid}
+  def set_quiet(%__MODULE__{} = prog), do: %__MODULE__{prog | quiet?: true}
+
+  def set_input(%__MODULE__{} = prog, input) when is_list(input) do
+    %__MODULE__{prog | input: input}
   end
+
+  @doc """
+  Return the output of the program in the order it was printed
+  """
+  def read_output(%__MODULE__{output: output}), do: Enum.reverse(output)
 
   def to_opcode(code) do
     Integer.digits(code)
@@ -76,13 +83,9 @@ defmodule Prog do
 
   # input
   def execute_instruction(prog, 3) do
-    %__MODULE__{input_pid: input_pid} = prog
     [{:position, dest}] = get_parameters(prog, 1)
 
-    value =
-      IO.gets(input_pid, "Enter input: ")
-      |> String.trim()
-      |> String.to_integer()
+    {value, prog} = read_input(prog)
 
     log("INPUT: #{inspect(dest)} = #{value}")
 
@@ -97,7 +100,7 @@ defmodule Prog do
 
     value = read_param(prog, arg1)
     log("OUTP : = #{value}")
-    IO.puts("output: #{value}")
+    prog = write_output(prog, value)
 
     prog
     |> increment_pointer(2)
@@ -226,6 +229,33 @@ defmodule Prog do
       [Map.fetch!(codes, address) | acc]
     end)
     |> Enum.reverse()
+  end
+
+  defp read_input(prog) do
+    %__MODULE__{input: input} = prog
+
+    if input == [] do
+      val =
+        IO.gets("Enter input: ")
+        |> String.trim()
+        |> String.to_integer()
+
+      {val, prog}
+    else
+      [val | rest] = input
+      prog = %__MODULE__{prog | input: rest}
+      {val, prog}
+    end
+  end
+
+  defp write_output(prog, value) do
+    %__MODULE__{output: output, quiet?: quiet?} = prog
+
+    if !quiet? do
+      IO.puts("output: #{value}")
+    end
+
+    %__MODULE__{prog | output: [value | output]}
   end
 
   # defp log(output), do: IO.puts(output)
