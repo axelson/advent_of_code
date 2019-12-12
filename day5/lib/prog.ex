@@ -1,6 +1,6 @@
 defmodule Prog do
   require Logger
-  defstruct [:codes, :cur_pointer, :halted?]
+  defstruct [:codes, :cur_pointer, :halted?, :input_pid]
 
   def intcodes_to_prog(intcodes) when is_list(intcodes) do
     codes =
@@ -10,7 +10,7 @@ defmodule Prog do
         Map.put(acc, index, intcode)
       end)
 
-    %__MODULE__{codes: codes, cur_pointer: 0, halted?: false}
+    %__MODULE__{codes: codes, cur_pointer: 0, halted?: false, input_pid: :stdio}
   end
 
   def execute_prog(%__MODULE__{halted?: true} = prog), do: prog
@@ -24,6 +24,10 @@ defmodule Prog do
 
     execute_instruction(prog, cur_code)
     |> execute_prog()
+  end
+
+  def set_input(%__MODULE__{} = prog, pid) do
+    %__MODULE__{prog | input_pid: pid}
   end
 
   def to_opcode(code) do
@@ -72,10 +76,11 @@ defmodule Prog do
 
   # input
   def execute_instruction(prog, 3) do
+    %__MODULE__{input_pid: input_pid} = prog
     [{:position, dest}] = get_parameters(prog, 1)
 
     value =
-      IO.gets("Enter input: ")
+      IO.gets(input_pid, "Enter input: ")
       |> String.trim()
       |> String.to_integer()
 
@@ -91,10 +96,71 @@ defmodule Prog do
     [arg1] = get_parameters(prog, 1)
 
     value = read_param(prog, arg1)
+    log("OUTP : = #{value}")
     IO.puts("output: #{value}")
 
     prog
     |> increment_pointer(2)
+  end
+
+  # jump-if-true
+  def execute_instruction(prog, 5) do
+    [arg1, arg2] = get_parameters(prog, 2)
+    num1 = read_param(prog, arg1)
+    dest = read_param(prog, arg2)
+
+    log("JMPIT: = #{num1} => #{dest}")
+
+    if num1 != 0 do
+      %__MODULE__{prog | cur_pointer: dest}
+    else
+      prog
+      |> increment_pointer(3)
+    end
+  end
+
+  # jump-if-false
+  def execute_instruction(prog, 6) do
+    [arg1, arg2] = get_parameters(prog, 2)
+    num1 = read_param(prog, arg1)
+    dest = read_param(prog, arg2)
+
+    log("JMPIF: = #{num1} => #{dest}")
+
+    if num1 == 0 do
+      %__MODULE__{prog | cur_pointer: dest}
+    else
+      prog
+      |> increment_pointer(3)
+    end
+  end
+
+  # less than
+  def execute_instruction(prog, 7) do
+    [arg1, arg2, {:position, dest}] = get_parameters(prog, 3)
+
+    num1 = read_param(prog, arg1)
+    num2 = read_param(prog, arg2)
+    value = if num1 < num2, do: 1, else: 0
+    log("LESS : = #{num1}, #{num2} => #{value}")
+
+    prog
+    |> store_pos(dest, value)
+    |> increment_pointer(4)
+  end
+
+  # equals
+  def execute_instruction(prog, 8) do
+    [arg1, arg2, {:position, dest}] = get_parameters(prog, 3)
+
+    num1 = read_param(prog, arg1)
+    num2 = read_param(prog, arg2)
+    value = if num1 == num2, do: 1, else: 0
+    log("EQL  : #{num1}, #{num2} => #{value} to #{dest}")
+
+    prog
+    |> store_pos(dest, value)
+    |> increment_pointer(4)
   end
 
   def execute_instruction(prog, instruction) do

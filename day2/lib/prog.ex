@@ -1,5 +1,5 @@
 defmodule Prog do
-  defstruct [:codes, :cur_pointer, :halted?]
+  defstruct [:codes, :cur_pointer, :halted?, :input_pid]
 
   def intcodes_to_prog(intcodes) when is_list(intcodes) do
     codes =
