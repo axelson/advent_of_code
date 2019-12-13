@@ -49,6 +49,10 @@ defmodule Day9Test do
     assert Day9.part1() == [2_682_107_844]
   end
 
+  test "part2" do
+    assert Day9.part2() == [34738]
+  end
+
   defp execute_prog(prog) do
     prog = Prog.set_output(prog, self())
 

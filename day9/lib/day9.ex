@@ -18,6 +18,23 @@ defmodule Day9 do
     receive_input()
   end
 
+  def part2 do
+    prog = build_prog()
+
+    me = self()
+
+    pid =
+      spawn_link(fn ->
+        prog
+        |> Prog.set_output(me)
+        |> Prog.execute_prog()
+      end)
+
+    send(pid, 2)
+
+    receive_input()
+  end
+
   def file_input, do: Advent.comma_input(@file_path)
 
   def build_prog(input \\ file_input()) do
