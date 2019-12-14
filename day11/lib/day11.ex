@@ -1,18 +1,51 @@
 defmodule Day11 do
-  @moduledoc """
-  Documentation for Day11.
-  """
+  @file_path Path.join(__DIR__, "input")
 
-  @doc """
-  Hello world.
+  def part1 do
+    prog = build_prog()
 
-  ## Examples
+    me = self()
 
-      iex> Day11.hello()
-      :world
+    pid =
+      spawn_link(fn ->
+        prog
+        |> Prog.set_input(me)
+        |> Prog.set_output(me)
+        |> Prog.execute_prog()
+      end)
 
-  """
-  def hello do
-    :world
+    robot = execute_robot(Robot.new(), pid)
+    map_size(robot.panels)
+  end
+
+  def execute_robot(robot, computer) do
+    receive do
+      :done ->
+        robot
+
+      :input_req ->
+        color = Robot.read_color(robot)
+        send(computer, color)
+        execute_robot(robot, computer)
+
+      color ->
+        robot = Robot.paint_color(robot, color)
+
+        receive do
+          turn_dir ->
+            robot
+            |> Robot.command({:turn, turn_dir})
+            |> execute_robot(computer)
+        end
+    end
+  end
+
+  def file_input, do: Advent.comma_input(@file_path)
+
+  def build_prog(input \\ file_input()) do
+    input
+    |> Enum.map(&String.to_integer/1)
+    |> Prog.intcodes_to_prog()
+    |> Prog.set_quiet()
   end
 end

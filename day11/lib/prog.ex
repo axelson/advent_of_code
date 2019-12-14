@@ -1,6 +1,16 @@
 defmodule Prog do
   require Logger
-  defstruct [:codes, :cur_pointer, :halted?, :last_output, :output_dest, :quiet?, :relative_base]
+
+  defstruct [
+    :codes,
+    :cur_pointer,
+    :halted?,
+    :last_output,
+    :input_dest,
+    :output_dest,
+    :quiet?,
+    :relative_base
+  ]
 
   def intcodes_to_prog(intcodes) when is_list(intcodes) do
     codes =
@@ -54,6 +64,10 @@ defmodule Prog do
 
   def set_output(%__MODULE__{} = prog, output_dest) do
     %__MODULE__{prog | output_dest: output_dest}
+  end
+
+  def set_input(%__MODULE__{} = prog, input_dest) do
+    %__MODULE__{prog | input_dest: input_dest}
   end
 
   def to_opcode(code) do
@@ -300,7 +314,10 @@ defmodule Prog do
     |> Enum.reverse()
   end
 
-  defp read_input(_prog) do
+  defp read_input(%__MODULE__{} = prog) do
+    %__MODULE__{input_dest: input_dest} = prog
+    send(input_dest, :input_req)
+
     receive do
       x -> x
     end
