@@ -18,6 +18,25 @@ defmodule Day11 do
     map_size(robot.panels)
   end
 
+  def part2 do
+    prog = build_prog()
+
+    me = self()
+
+    pid =
+      spawn_link(fn ->
+        prog
+        |> Prog.set_input(me)
+        |> Prog.set_output(me)
+        |> Prog.execute_prog()
+      end)
+
+    robot = execute_robot(Robot.new(), pid)
+
+    Robot.print(robot)
+    |> IO.puts()
+  end
+
   def execute_robot(robot, computer) do
     receive do
       :done ->
