@@ -1,8 +1,8 @@
 defmodule Day13Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Day13
 
-  test "greets the world" do
-    assert Day13.hello() == :world
+  test "part1 answer" do
+    assert Day13.part1() == 273
   end
 end
