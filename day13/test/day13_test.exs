@@ -5,4 +5,8 @@ defmodule Day13Test do
   test "part1 answer" do
     assert Day13.part1() == 273
   end
+
+  test "part2 answer" do
+    assert Day13.part2() == 13140
+  end
 end
