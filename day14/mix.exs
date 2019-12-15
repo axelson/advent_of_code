@@ -22,7 +22,8 @@ defmodule Day14.MixProject do
   defp deps do
     [
       {:advent, path: "../advent"},
-      {:exsync, path: "~/dev/forks/exsync", only: :dev}
+      {:exsync, path: "~/dev/forks/exsync", only: :dev},
+      {:nimble_parsec, "~> 0.2"}
     ]
   end
 end
