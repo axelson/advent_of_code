@@ -43,6 +43,7 @@ defmodule Day14Test do
     """
 
     assert Day14.part1(input) == 13312
+    assert Day14.part2(input) == 82_892_753
   end
 
   test "sample value 4" do
@@ -62,6 +63,7 @@ defmodule Day14Test do
     """
 
     assert Day14.part1(input) == 180_697
+    assert Day14.part2(input) == 5_586_022
   end
 
   test "sample value 5" do
@@ -86,9 +88,14 @@ defmodule Day14Test do
     """
 
     assert Day14.part1(input) == 2_210_736
+    assert Day14.part2(input) == 460_664
   end
 
   test "part1 answer" do
     assert Day14.part1() == 201_324
+  end
+
+  test "part2 answer" do
+    assert Day14.part2() == 6_326_857
   end
 end
